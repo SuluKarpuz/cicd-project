@@ -54,7 +54,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No version update needed"
           else
-            git commit -m "Auto-update version [skip ci]"
+            git commit -m "Auto-update version"
             git push
           fi
 
