@@ -18,7 +18,7 @@ const getClusterInfo = async () => {
       [
         k8sApi.listNode(),
         k8sApi.listNamespace(),
-        k8sApi.listNamespacedPod("default"),
+        k8sApi.listPodForAllNamespaces(),
       ]
     );
 
