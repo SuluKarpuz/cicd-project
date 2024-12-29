@@ -10,7 +10,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ format('{0}/{1}', github.repository_owner, 'cicd-project') | lower }}
+  IMAGE_NAME: sulukarpuz/cicd-project
 
 jobs:
   test:
