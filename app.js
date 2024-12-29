@@ -14,12 +14,35 @@ const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 
 const getClusterInfo = async () => {
   try {
-    const [nodes] = await Promise.all([k8sApi.listNode()]);
+    const [nodesResponse, namespacesResponse, podsResponse] = await Promise.all(
+      [
+        k8sApi.listNode(),
+        k8sApi.listNamespace(),
+        k8sApi.listNamespacedPod("default"),
+      ]
+    );
+
+    const nodes = nodesResponse.body.items.map((node) => ({
+      name: node.metadata.name,
+      kubeletVersion: node.status.nodeInfo.kubeletVersion,
+      containerRuntime: node.status.nodeInfo.containerRuntimeVersion,
+    }));
+
+    const pods = podsResponse.body.items.map((pod) => ({
+      name: pod.metadata.name,
+      status: pod.status.phase,
+    }));
+    console.log("Nodes", nodes);
+    console.log("Pods", pods);
 
     return {
       status: "ok",
       clusterInfo: {
-        nodes: nodes.body.items.length,
+        nodes: nodes.length,
+        namespaces: namespacesResponse.body.items.length,
+        podsInDefaultNamespace: pods.length,
+        nodeDetails: nodes,
+        runningPods: pods,
         timestamp: new Date().toISOString(),
       },
     };
