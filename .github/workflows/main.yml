@@ -27,9 +27,37 @@ jobs:
 
       - name: Run tests
         run: npm test
+  update-version:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Update version
+        run: node scripts/update-version.js
+
+      - name: Commit and push if changed
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add version.js
+          if git diff --staged --quiet; then
+            echo "No version update needed"
+          else
+            git commit -m "Auto-update version"
+            git push
+          fi
 
   build-and-push:
-    needs: test
+    needs: [test, update-version]
     runs-on: ubuntu-latest
     permissions:
       contents: read

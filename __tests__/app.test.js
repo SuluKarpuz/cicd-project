@@ -1,6 +1,6 @@
-// __tests__/app.test.js
 import request from "supertest";
 import app from "../app.js";
+import { version } from "../version.js";
 
 describe("API Endpoints", () => {
   test("GET / should return hello message with version and timestamp", async () => {
@@ -8,7 +8,7 @@ describe("API Endpoints", () => {
     expect(response.statusCode).toBe(200);
     expect(response.body).toMatchObject({
       message: "Hello from Node.js!",
-      version: "1.0.0",
+      version: version,
     });
     expect(new Date(response.body.timestamp)).toBeInstanceOf(Date);
   });

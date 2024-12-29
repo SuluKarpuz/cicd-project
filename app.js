@@ -1,5 +1,6 @@
 import express from "express";
 import * as k8s from "@kubernetes/client-node";
+import { version } from "./version.js";
 
 const app = express();
 
@@ -35,7 +36,7 @@ const getClusterInfo = async () => {
 app.get("/", (req, res) => {
   res.json({
     message: "Hello from Node.js!",
-    version: "1.0.1",
+    version: version,
     timestamp: new Date().toISOString(),
   });
 });
