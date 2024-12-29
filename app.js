@@ -14,27 +14,49 @@ const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 
 const getClusterInfo = async () => {
   try {
-    const [nodesResponse, namespacesResponse, podsResponse] = await Promise.all(
-      [
-        k8sApi.listNode(),
-        k8sApi.listNamespace(),
-        k8sApi.listPodForAllNamespaces(),
-      ]
-    );
+    const [nodes, namespaces, pods] = await Promise.all([
+      k8sApi.listNode(),
+      k8sApi.listNamespace(),
+      k8sApi.listPodForAllNamespaces(),
+    ]);
 
-    console.log("Nodes", nodesResponse);
-    console.log("Namespaces", namespacesResponse);
+    console.log("Nodes", nodes);
+    console.log("Namespaces", namespaces);
     console.log("Pods", pods);
 
-    return {
+    const clusterInfo = {
       status: "ok",
-      clusterInfo: {
-        nodes: JSON.stringify(nodesResponse),
-        pods: JSON.stringify(podsResponse),
-        namespaces: JSON.stringify(namespacesResponse),
+      apiVersion: nodes.body.apiVersion,
+      kind: nodes.body.kind,
+      clusters: {
+        nodes: {
+          total: nodes.body.items.length,
+          items: nodes.body.items.map((node) => ({
+            name: node.metadata.name,
+          })),
+        },
+        namespaces: {
+          total: namespaces.body.items.length,
+          items: namespaces.body.items.map((ns) => ({
+            name: ns.metadata.name,
+          })),
+        },
+        pods: {
+          total: pods.body.items.length,
+          items: pods.body.items.map((pod) => ({
+            name: pod.metadata.name,
+            namespace: pod.metadata.namespace,
+            status: pod.status.phase,
+          })),
+        },
+      },
+      metadata: {
         timestamp: new Date().toISOString(),
+        resourceVersion: nodes.body.metadata.resourceVersion,
       },
     };
+
+    return clusterInfo;
   } catch (error) {
     console.log("Error:", error);
     return {
