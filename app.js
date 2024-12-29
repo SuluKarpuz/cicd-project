@@ -1,4 +1,3 @@
-// app.js
 import express from "express";
 import * as k8s from "@kubernetes/client-node";
 
@@ -14,22 +13,17 @@ const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 
 const getClusterInfo = async () => {
   try {
-    const [nodes, namespaces, pods] = await Promise.all([
-      k8sApi.listNode(),
-      k8sApi.listNamespace(),
-      k8sApi.listNamespacedPod("default"),
-    ]);
+    const [nodes] = await Promise.all([k8sApi.listNode()]);
 
     return {
       status: "ok",
       clusterInfo: {
         nodes: nodes.body.items.length,
-        namespaces: namespaces.body.items.length,
-        podsInDefaultNamespace: pods.body.items.length,
         timestamp: new Date().toISOString(),
       },
     };
   } catch (error) {
+    console.log("Error:", error);
     return {
       status: "limited",
       message: "Limited cluster information available",
@@ -38,11 +32,10 @@ const getClusterInfo = async () => {
   }
 };
 
-// Routes
 app.get("/", (req, res) => {
   res.json({
     message: "Hello from Node.js!",
-    version: "1.0.0",
+    version: "1.0.1",
     timestamp: new Date().toISOString(),
   });
 });
@@ -56,7 +49,6 @@ app.get("/cluster-info", async (req, res) => {
   res.json(info);
 });
 
-// Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
