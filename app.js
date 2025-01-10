@@ -46,6 +46,7 @@ app.get("/", (req, res) => {
     message: "Hello from Node.js!",
     version: version,
     timestamp: new Date().toISOString(),
+    merhaba: "merhaba",
   });
 });
 
