@@ -23,6 +23,7 @@ const getClusterInfo = async () => {
     console.log("Nodes", nodes);
     console.log("Namespaces", namespaces);
     console.log("Pods", pods);
+    console.log("hello world");
 
     return {
       nodes: JSON.parse(JSON.stringify(nodes)),
